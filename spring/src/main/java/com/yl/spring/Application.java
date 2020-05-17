@@ -1,26 +1,38 @@
 package com.yl.spring;
 
-import com.yl.spring.bean.inheritance.config.AppConfig;
-import com.yl.spring.bean.inheritance.domain.EPubBook;
+
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Collections;
+import java.util.Map;
+
 
 @SpringBootApplication
-public class Application {
+@RestController
+public class Application extends WebSecurityConfigurerAdapter {
+	public Map<String,Object> user(@AuthenticationPrincipal OAuth2User principal){
+		return Collections.singletonMap("name",principal.getAttribute("name"));
+	}
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.authorizeRequests(a->a.antMatchers("/","/error","/webjars/***").permitAll().anyRequest().authenticated()
+		).exceptionHandling(e->e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+		).oauth2Login();
+	}
 
 	public static void main(String[] args) {
-		AnnotationConfigApplicationContext ctx=new AnnotationConfigApplicationContext();
-		ctx.register(AppConfig.class);
-		ctx.refresh();
-		EPubBook ePubBook=ctx.getBean(EPubBook.class);
-		System.out.println("author name"+ePubBook.getAuthorName());
-		System.out.println("Book Name: " + ePubBook.getBookName());
-		System.out.println("Book Price: " + ePubBook.getBookPrice());
-		System.out.println("Download URL: " + ePubBook.getDownloadUrl());
 		SpringApplication.run(Application.class, args);
-		ctx.registerShutdownHook();
-
 	}
 
 }

@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfig {
     @Bean
     public EPubBook ePubBook(){
-EPubBook ePubBook=new EPubBook();
-        initBook(ePubBook());
+        EPubBook ePubBook=new EPubBook();
+        initBook(ePubBook);
         ePubBook.setDownloadUrl("http://example.eput.com/books/child");
         return ePubBook;
     }
@@ -19,4 +19,8 @@ EPubBook ePubBook=new EPubBook();
         book.setBookPrice(22.99f);
         book.setAuthorName("Sigid");
     }
+
+
+
+
 }
